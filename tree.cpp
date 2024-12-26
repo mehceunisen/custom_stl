@@ -12,6 +12,12 @@ struct Leaf {
     right = nullptr;
   }
 
+  bool operator<(const T& other) {
+    return this->data < other;
+  }
+  bool operator>=(const T& other) {
+    return this->data >= other;
+  }
 };
 
 template <class T>
@@ -35,10 +41,10 @@ class Tree {
     if (iter == nullptr) {
       return new Leaf<T>(data);
     }
-    if(data > iter->data) {
+    if(*iter < data) {
       iter->right = add_leaf_(data, iter->right);
     }
-    else if (data <= iter->data) {
+    else if (*iter >= data) {
       iter->left = add_leaf_(data, iter->left);
     }
   }
@@ -59,6 +65,7 @@ class Tree {
 
 int main() {
   int i = 0;
+  Leaf<int> l(1);
   Tree<int> t(10);
   t.add_leaf(3);
   t.add_leaf(4);
