@@ -23,7 +23,12 @@ class Variant {
     union Storage {
       
       template<typename T>
-      explicit Storage(T&& value) {
+      Storage(T&& value) {
+        new (&data) T(std::forward<T>(value));
+      }
+      
+      template<typename T>
+      void store(T&& value) {
         new (&data) T(std::forward<T>(value));
       }
 
@@ -41,12 +46,23 @@ class Variant {
       return *reinterpret_cast<T*>(m_storage.data);
     }
 
+    template <typename T>
+    void operator=(T&& other) {
+      static_assert(Index<T, Types...>::value != -1 && "Poor assignment");
+      this->m_index = Index<T, Types...>::value;
+      this->m_storage = Storage(std::forward<T>(other));
+    }
+
   private:
     Storage m_storage;
     std::size_t m_index;
 };
 
 int main() {
-  Variant<int, double, float> v(1);
-  std::cout << v.get<int>();
+  Variant<int, double> v(1);
+  v = 12.123123;
+  std::cout << v.get<double>() << "\n";
+  v = 1.23124;
 }
+
+
